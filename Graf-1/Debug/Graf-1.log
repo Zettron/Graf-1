@@ -1,2 +1,4 @@
 ﻿  Graf-1.cpp
+C:\Users\Dmytry\Desktop\Учеба\Стажування\Graf-1\Graf-1.cpp(223,16): warning C4101: maxping: неиспользованная локальная переменная
+C:\Users\Dmytry\Desktop\Учеба\Стажування\Graf-1\Graf-1.cpp(223,9): warning C4101: ping: неиспользованная локальная переменная
   Graf-1.vcxproj -> C:\Users\Dmytry\Desktop\Учеба\Стажування\Graf-1\Debug\Graf-1.exe
