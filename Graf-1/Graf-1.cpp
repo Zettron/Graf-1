@@ -135,7 +135,29 @@ public:
 //    }*/
 //}
 
-
+int Ping()
+{
+    Ip* n = new Ip[819];
+    int i = 0, j = 0, host = 5, serch = 1;
+    int ping = 0, v[819];
+    while(1)
+    for (i; i < 819; i++)
+    {
+        if (n[i].getIp1() == host && v[i]!=0)
+        {
+            for (j; j < 819; j++)
+            {
+                if (n[j].getIp1() == n[i].getIp2())
+                {
+                    ping += 2;
+                    i = -1;
+                    host = n[j].getIp1();
+                    break;
+                }
+            }
+        }
+    }
+}
 
 int main()
 {
