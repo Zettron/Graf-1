@@ -139,12 +139,22 @@ int Ping()
 {
     Ip* n = new Ip[819];
     int i = 0, j = 0, host = 5, serch = 1;
-    int ping = 0, v[819];
-    while(1)
+    int ping, v[819];
+    while (1)
+        ping = 0;
+        host = 5;
     for (i; i < 819; i++)
     {
+        if (n[i].getIp2() == serch && n[i].getIp1() == host)
+            return ping;
+
         if (n[i].getIp1() == host && v[i]!=0)
         {
+            if(n[i].getIp1() == 5)
+            v[i] = 0;
+
+
+
             for (j; j < 819; j++)
             {
                 if (n[j].getIp1() == n[i].getIp2())
@@ -234,8 +244,8 @@ int main()
     //if (command == "ping 192.168.0.1 -c 1 > res.txt")
     //{
 
-        //ping = pin(125, 114);
-        //cout << ping << "ms";
+        ping = Ping();
+       cout << ping << "ms";
         //png << ping;
     //}
     //cout << "max ping " << maxping << "ms";
