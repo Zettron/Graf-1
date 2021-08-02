@@ -1,4 +1,2 @@
 ﻿  Graf-1.cpp
-C:\Users\Dmytry\Desktop\Учеба\Стажування\Graf-1\Graf-1.cpp(195,16): warning C4101: maxping: неиспользованная локальная переменная
-C:\Users\Dmytry\Desktop\Учеба\Стажування\Graf-1\Graf-1.cpp(123): warning C4715: pin: значение возвращается не при всех путях выполнения
   Graf-1.vcxproj -> C:\Users\Dmytry\Desktop\Учеба\Стажування\Graf-1\Debug\Graf-1.exe

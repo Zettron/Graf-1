@@ -36,90 +36,91 @@ public:
     }
 };
 
-int pin(int h, int o)
+int Ping(int start, int finish, Ip* n)
 {
-    Ip* n = new Ip[819];
-    int i = 0, j = 0, ping = 0, host = 1, on = 0;
-    //while (1)
-    //{
-    host = h;
-    on = o;
-    ping = 0;
-    for (i; i < 819; i++)
-    {
-        if (host == n[i].getIp1())
-        {
-            if (n[i].getIp2() != on)
-            {
-                ping = 0;
-            }
-            else if (n[i].getIp2() == on)
-            {
-                ping = ping + 2;
-                return ping;
-            }
-            for (j; j < 819; j++)
-            {
-                if (n[i].getIp2() == n[j].getIp1())
-                {
-                    ping = ping + 2;
-                    host = n[j].getIp1();
-                }
-            }
-        }
+    int length[127][127], a = 0, b = 0, i=0, j=0, s=0;
 
+    for (j=0; j < 127; j++)
+    {
+        for (i = 0; i < 127; i++)
+        {
+             length[j][i] = 0;   
+        }
     }
-    //}
 
-    /*for (i = 0; i < 819; i++)
+    for (i=0; i < 819; i++)
     {
-        if (host == on)
+        a = n[i].getIp1();
+        b = n[i].getIp2();
+
+        if (a != b)
         {
-            ping += 2;
-            return ping;
+            length[a][b] = 2;
         }
-        host = h;
-        on = o;
-        ping = 0;
-        if (host == n[i].getIp1() || on == n[i].getIp2())
+        
+    }
+    
+    for (int p = 0; p < 819; p++)
+    {
+        s = start;
+        for (i = 0; i < 819; i++)
         {
-            ping += 2;
-            if (host == n[i].getIp1())
+            if (s == n[i].getIp1())
             {
                 for (j = 0; j < 819; j++)
                 {
                     if (n[i].getIp2() == n[j].getIp1())
                     {
-                        host = n[j].getIp1();
-                        break;
+                        
+                        if (length[s][n[j].getIp2()] == 0 || length[s][n[j].getIp2()] > length[s][n[i].getIp2()] + 2)
+                        {
+                            length[start][n[j].getIp2()] = length[n[i].getIp1()][n[i].getIp2()] + 2;
+                            s = n[j].getIp1();
+                            //i = -1;
+                            j = 819;
+                        }
+                        
+
+
                     }
+                    
+
                 }
-            }
-            else if (on == n[i].getIp2())
-            {
-                for (j = 0; j < 819; j++)
-                {
-                    if (n[i].getIp2() == n[j].getIp1())
-                    {
-                        on = n[j].getIp2();
-                        break;
-                    }
-                }
+                
             }
         }
-        else if (on == n[i].getIp2())
+    }
+
+    int fir=0, sec=0, maxping=0;
+
+    for (i = 0; i < 127; i++)
+    {
+        for (j = 0; j < 127; j++)
         {
-            ping += 2;
-            for (j = 0; j < 819; j++)
+            if (maxping < length[n[i].getIp1()][n[j].getIp2()])
             {
-                if (n[i].getIp2() == n[j].getIp1())
-                {
-                    on = n[j].getIp2();
-                    break;
-                }
+                maxping = length[n[i].getIp1()][n[j].getIp2()];
+                fir = n[i].getIp1();
+                sec = n[j].getIp2();
             }
         }
+    }
+    cout << "->maxping from 192.168.0." << fir << " to 192.168.0." << sec << " - " << maxping << "ms\n";
+
+
+    //вивід на екран
+    /*for (i=0; i < 127; i++)
+    {
+        for (j=0; j < 127; j++)
+        {
+
+            cout << length[i][j] << " ";
+        }
+        cout << endl << endl;
     }*/
+    
+
+    return length[start][finish];
 }
 
 int main()
@@ -137,7 +138,7 @@ int main()
     {
         cout << "The file G1.csv is open\n";
     }
-    int i, j=0;
+    int i=0, j=0;
     Ip* n = new Ip[819];
     string ips;
 
@@ -145,8 +146,6 @@ int main()
     {
         fin >> ips;
         n[i].setIp(ips);
-        //проверка читання файла
-        //cout << n[i].getConnection() << endl;
     }
     fin.close();
     
@@ -189,18 +188,20 @@ int main()
        /*cout << endl << n[i].getIp1() << "->";
        cout << n[i].getIp2();*/
     }
-
+    cout << endl;
     ofstream png("res.txt", ios_base::out);
-    string command, target = "ping 192.168.0.1 -c 1 > res.txt";
-    int ping , maxping;
-    //cin >> command;
-    //if (command == "ping 192.168.0.1 -c 1 > res.txt")
-    //{
-        ping = pin(125, 114);
-        cout << ping << "ms";
+    string command;
+    char target[] = "ping 192.168.0.1 -c 1 > res.txt";
+    int ping, host = 5, out = 1;
+
+    cin >> command;
+    if (command[1] == target[1])
+    {
+        cout << endl;
+        ping = Ping(5, 1, n);
         png << ping;
-    //}
-    //cout << "max ping " << maxping << "ms";
+        cout << "\n->ping from 192.168.0.5 to 192.168.0.1 - " << ping << "ms\n";
+    }
 
     png.close();
     return 0;
