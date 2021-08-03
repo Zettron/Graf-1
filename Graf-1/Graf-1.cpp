@@ -4,6 +4,7 @@
 #include <iomanip>
 
 using namespace std;
+#pragma comment(linker, "/STACK:66216")
 
 class Ip
 {
@@ -36,13 +37,15 @@ public:
     }
 };
 
+const int countip = 127;
+
 int Ping(int start, int finish, Ip* n, int strc)
 {
-    int length[127][127], a = 0, b = 0, i = 0, j = 0, s = 0;
+    int length[countip][countip], a = 0, b = 0, i = 0, j = 0, s = 0;
 
-    for (j = 0; j < 127; j++)
+    for (j = 0; j < countip; j++)
     {
-        for (i = 0; i < 127; i++)
+        for (i = 0; i < countip; i++)
         {
             if (i == j) {
                 length[j][i] = 0;
@@ -64,9 +67,9 @@ int Ping(int start, int finish, Ip* n, int strc)
 
     }
 
-    for (int k = 0; k < 127; k++) {
-        for (int i = 0; i < 127; i++) {
-            for (int j = 0; j < 127; j++) {
+    for (int k = 0; k < countip; k++) {
+        for (int i = 0; i < countip; i++) {
+            for (int j = 0; j < countip; j++) {
                 if (length[i][j] > (length[i][k] + length[k][j]) && (length[k][j] != INT_MAX && length[i][k] != INT_MAX))
                     length[i][j] = length[i][k] + length[k][j];
             }
@@ -77,9 +80,9 @@ int Ping(int start, int finish, Ip* n, int strc)
 
 
     //вивід на екран
-    /*for (i = 0; i < 127; i++)
+    /*for (i = 0; i < countip; i++)
     {
-        for (j = 0; j < 127; j++)
+        for (j = 0; j < countip; j++)
         {
 
             if (length[i][j] == INT_MAX) {
@@ -93,9 +96,9 @@ int Ping(int start, int finish, Ip* n, int strc)
 
     int fir = 0, sec = 0, maxping = 0;
 
-    for (i = 1; i < 127; i++)
+    for (i = 1; i < countip; i++)
     {
-        for (j = 1; j < 127; j++)
+        for (j = 1; j < countip; j++)
         {
             if (maxping < length[i][j])
             {
@@ -107,9 +110,9 @@ int Ping(int start, int finish, Ip* n, int strc)
     }
     bool notConnect = 1;
 
-    for (i = 1; i < 127; i++)
+    for (i = 1; i < countip; i++)
     {
-        for (j = 1; j < 127; j++)
+        for (j = 1; j < countip; j++)
         {
             if (i != j && length[i][j] == 0)
             {
@@ -205,7 +208,7 @@ int main()
     if (command[3] == target[3])
     {
         cout << endl;
-        ping = Ping(5, 1, n, strc);
+        ping = Ping(host, out, n, strc);
         png << ping << "ms";
         cout << "\n->ping from 192.168.0.5 to 192.168.0.1 - " << ping << "ms\n";
         cout << "\tSaved to res.txt - " << ping << "ms\n";
