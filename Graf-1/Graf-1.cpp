@@ -36,19 +36,23 @@ public:
     }
 };
 
-int Ping(int start, int finish, Ip* n)
+int Ping(int start, int finish, Ip* n, int strc)
 {
-    int length[127][127], a = 0, b = 0, i=0, j=0, s=0;
+    int length[127][127], a = 0, b = 0, i = 0, j = 0, s = 0;
 
-    for (j=0; j < 127; j++)
+    for (j = 0; j < 127; j++)
     {
         for (i = 0; i < 127; i++)
         {
-             length[j][i] = 0;   
+            if (i == j) {
+                length[j][i] = 0;
+                continue;
+            }
+            length[j][i] = INT_MAX;
         }
     }
 
-    for (i=0; i < 819; i++)
+    for (i = 0; i < strc; i++)
     {
         a = n[i].getIp1();
         b = n[i].getIp2();
@@ -57,72 +61,68 @@ int Ping(int start, int finish, Ip* n)
         {
             length[a][b] = 2;
         }
-        
+
     }
+
+    for (int k = 0; k < 127; k++) {
+        for (int i = 0; i < 127; i++) {
+            for (int j = 0; j < 127; j++) {
+                if (length[i][j] > (length[i][k] + length[k][j]) && (length[k][j] != INT_MAX && length[i][k] != INT_MAX))
+                    length[i][j] = length[i][k] + length[k][j];
+            }
+        }
+    }
+
     
-    for (int p = 0; p < 819; p++)
-    {
-        s = start;
-        for (i = 0; i < 819; i++)
-        {
-            if (s == n[i].getIp1())
-            {
-                for (j = 0; j < 819; j++)
-                {
-                    if (n[i].getIp2() == n[j].getIp1())
-                    {
-                        
-                        if (length[s][n[j].getIp2()] == 0 || length[s][n[j].getIp2()] > length[s][n[i].getIp2()] + 2)
-                        {
-                            length[n[i].getIp1()][n[j].getIp2()] = length[n[i].getIp1()][n[i].getIp2()] + 2;
-                            s = n[j].getIp1();
-                        }
-                        
-
-                        /*if (length[n[i].getIp1()][n[j].getIp2()] ==0)
-                            length[n[i].getIp1()][n[j].getIp2()] = length[n[i].getIp1()][n[i].getIp2()] + 2;*/
-
-                            /*else if (length[n[i].getIp1()][n[j].getIp2()] > length[n[i].getIp1()][n[i].getIp2()] + 2)
-                                length[n[i].getIp1()][n[j].getIp2()] = length[n[i].getIp1()][n[i].getIp2()] + 2;*/
-
-
-                    }
-                    
-
-                }
-                
-            }
-        }
-    }
-
-    int fir=0, sec=0, maxping=0;
-
-    for (i = 0; i < 127; i++)
-    {
-        for (j = 0; j < 127; j++)
-        {
-            if (maxping < length[n[i].getIp1()][n[j].getIp2()])
-            {
-                maxping = length[n[i].getIp1()][n[j].getIp2()];
-                fir = n[i].getIp1();
-                sec = n[j].getIp2();
-            }
-        }
-    }
-    cout << "->maxping from 192.168.0." << fir << " to 192.168.0." << sec << " - " << maxping << "ms\n";
 
 
     //вивід на екран
-    /*for (i=0; i < 127; i++)
+    /*for (i = 0; i < 127; i++)
     {
-        for (j=0; j < 127; j++)
+        for (j = 0; j < 127; j++)
         {
 
+            if (length[i][j] == INT_MAX) {
+                cout << "INF ";
+                continue;
+            }
             cout << length[i][j] << " ";
         }
         cout << endl << endl;
     }*/
-    
+
+    int fir = 0, sec = 0, maxping = 0;
+
+    for (i = 1; i < 127; i++)
+    {
+        for (j = 1; j < 127; j++)
+        {
+            if (maxping < length[i][j])
+            {
+                maxping = length[i][j];
+                fir = i;
+                sec = j;
+            }
+        }
+    }
+    bool notConnect = 1;
+
+    for (i = 1; i < 127; i++)
+    {
+        for (j = 1; j < 127; j++)
+        {
+            if (i != j && length[i][j] == 0)
+            {
+                cout << "->not connected from 192.168.0." << i << " to " << j << endl;
+                notConnect = 0;
+            }
+        }
+    }
+
+    if (notConnect == 1)
+        cout << "\tThere are no nodes with no connection\n\n";
+
+    cout << "->maxping from 192.168.0." << fir << " to 192.168.0." << sec << " - " << maxping << "ms\n";
 
     return length[start][finish];
 }
@@ -135,28 +135,31 @@ int main()
     fin.open("G1.csv");
     if (!fin.is_open())
     {
-        cout << "Error opening file G1.csv";
+        cout << "\tError opening file G1.csv";
         return 0;
     }
     else if (fin.is_open())
     {
-        cout << "The file G1.csv is open\n";
+        cout << "\tThe file G1.csv is open\n";
     }
-    int i=0, j=0;
-    Ip* n = new Ip[819];
+    int i=0, j=0, strc=-1;
+    Ip* n = new Ip[16000];
     string ips;
 
-    for (i = 0; i < 819; i++)
+    for(i=0;!fin.eof(); i++)
     {
         fin >> ips;
         n[i].setIp(ips);
+        strc ++;
     }
+    //вивести к-ть рядків в файлі
+    //cout << strc << endl;
     fin.close();
     
     int x=0, y=0, d=1, sum=0;
     int g;
     char coma = ',', point ='.';
-    for (i = 0; i < 819; i++)
+    for (i = 0; i < strc; i++)
     {
         ips = n[i].getConnection();
         for (j = ips.length() - 1; ips[j] != point; j--)
@@ -199,12 +202,13 @@ int main()
     int ping, host = 5, out = 1;
 
     cin >> command;
-    if (command[1] == target[1])
+    if (command[3] == target[3])
     {
         cout << endl;
-        ping = Ping(5, 1, n);
-        png << ping;
+        ping = Ping(5, 1, n, strc);
+        png << ping << "ms";
         cout << "\n->ping from 192.168.0.5 to 192.168.0.1 - " << ping << "ms\n";
+        cout << "\tSaved to res.txt - " << ping << "ms\n";
     }
 
     png.close();
