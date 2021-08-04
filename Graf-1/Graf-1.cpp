@@ -6,6 +6,8 @@
 using namespace std;
 #pragma comment(linker, "/STACK:66216")
 
+const int countip = 127;
+
 class Ip
 {
 public:
@@ -37,7 +39,62 @@ public:
     }
 };
 
-const int countip = 127;
+void TranslateConnection(int strc, Ip* n)
+{
+    int x = 0, y = 0, d = 1, sum = 0;
+    int g, i=0, j=0;
+    char coma = ',', point = '.';
+    string ips;
+    for (i = 0; i < strc; i++)
+    {
+        ips = n[i].getConnection();
+        for (j = ips.length() - 1; ips[j] != point; j--)
+        {
+            x = (int)ips[j];
+            x -= 48;
+            sum += x * d;
+            d *= 10;
+            if (ips[j - 1] == point)
+                n[i].setIp2(sum);
+        }
+        sum = 0;
+        d = 1;
+        for (j = 13; j >= 10; j--)
+        {
+            if (ips[j] == coma)
+            {
+                g = j - 1;
+                for (g; g >= 10; g--)
+                {
+                    y = (int)ips[g];
+                    y -= 48;
+                    sum += y * d;
+                    d *= 10;
+                }
+            }
+            else if (ips[j - 1] == point)
+                n[i].setIp1(sum);
+        }
+        sum = 0;
+        d = 1;
+        //проверка виводу іп1->іп2
+      /* cout << endl << n[i].getIp1() << "->";
+       cout << n[i].getIp2();*/
+    }
+    cout << endl;
+}
+
+void InfToScrean(bool notConnect, int fir, int sec, int maxping, int ping)
+{
+    cout << "\n->ping from 192.168.0.5 to 192.168.0.1 - " << ping << "ms\n";
+    cout << "\tSaved to res.txt - " << ping << "ms\n";
+    cout << "->maxping from 192.168.0." << fir << " to 192.168.0." << sec << " - " << maxping << "ms\n";
+    if (notConnect == 1)
+        cout << "\tThere are no nodes with no connection\n\n";
+
+    
+
+}
 
 int Ping(int start, int finish, Ip* n, int strc)
 {
@@ -76,9 +133,6 @@ int Ping(int start, int finish, Ip* n, int strc)
         }
     }
 
-    
-
-
     //вивід на екран
     /*for (i = 0; i < countip; i++)
     {
@@ -108,26 +162,22 @@ int Ping(int start, int finish, Ip* n, int strc)
             }
         }
     }
-    bool notConnect = 1;
 
+    bool notConnect = 1;
     for (i = 1; i < countip; i++)
     {
         for (j = 1; j < countip; j++)
         {
             if (i != j && length[i][j] == 0)
             {
-                cout << "->not connected from 192.168.0." << i << " to " << j << endl;
+                cout << "->node no connection from 192.168.0." << i << " to " << j << endl;
                 notConnect = 0;
             }
         }
     }
 
-    if (notConnect == 1)
-        cout << "\tThere are no nodes with no connection\n\n";
-
-    cout << "->maxping from 192.168.0." << fir << " to 192.168.0." << sec << " - " << maxping << "ms\n";
-
-    return length[start][finish];
+    InfToScrean(notConnect, fir, sec, maxping, length[start][finish]);
+        return length[start][finish];
 }
 
 int main()
@@ -140,10 +190,6 @@ int main()
     {
         cout << "\tError opening file G1.csv";
         return 0;
-    }
-    else if (fin.is_open())
-    {
-        cout << "\tThe file G1.csv is open\n";
     }
     int i=0, j=0, strc=-1;
     Ip* n = new Ip[16000];
@@ -159,46 +205,8 @@ int main()
     //cout << strc << endl;
     fin.close();
     
-    int x=0, y=0, d=1, sum=0;
-    int g;
-    char coma = ',', point ='.';
-    for (i = 0; i < strc; i++)
-    {
-        ips = n[i].getConnection();
-        for (j = ips.length() - 1; ips[j] != point; j--)
-        {
-            x = (int)ips[j];
-            x -= 48;
-            sum += x * d;
-            d *= 10;
-            if(ips[j-1] == point)
-                n[i].setIp2(sum);
-        }
-        sum = 0;
-        d = 1;
-        for (j = 13 ; j >= 10; j--)
-        {   
-            if (ips[j] == coma)
-            {
-                g = j-1;
-                for (g; g >= 10; g--)
-                {
-                    y = (int)ips[g];
-                    y -= 48;
-                    sum += y * d;
-                    d *= 10; 
-                }
-            }
-            else if (ips[j - 1] == point)
-                n[i].setIp1(sum);
-        }
-        sum = 0;
-        d = 1;
-        //проверка виводу іп1->іп2
-       /*cout << endl << n[i].getIp1() << "->";
-       cout << n[i].getIp2();*/
-    }
-    cout << endl;
+    TranslateConnection(strc, n);
+
     ofstream png("res.txt", ios_base::out);
     string command;
     char target[] = "ping 192.168.0.1 -c 1 > res.txt";
@@ -207,13 +215,9 @@ int main()
     cin >> command;
     if (command[3] == target[3])
     {
-        cout << endl;
         ping = Ping(host, out, n, strc);
         png << ping << "ms";
-        cout << "\n->ping from 192.168.0.5 to 192.168.0.1 - " << ping << "ms\n";
-        cout << "\tSaved to res.txt - " << ping << "ms\n";
     }
-
     png.close();
     return 0;
 }
