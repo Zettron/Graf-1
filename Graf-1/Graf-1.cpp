@@ -39,11 +39,11 @@ public:
     }
 };
 
-void TranslateConnection(int strc, Ip* n)
+void CheckDistance(int strc, Ip* n)
 {
     int x = 0, y = 0, d = 1, sum = 0;
     int g, i=0, j=0;
-    char coma = ',', point = '.';
+    const char coma = ',', point = '.';
     string ips;
     for (i = 0; i < strc; i++)
     {
@@ -84,20 +84,48 @@ void TranslateConnection(int strc, Ip* n)
     cout << endl;
 }
 
-void InfToScrean(bool notConnect, int fir, int sec, int maxping, int ping)
+void MaxPing(int(*length)[countip])
 {
-    cout << "\n->ping from 192.168.0.5 to 192.168.0.1 - " << ping << "ms\n";
-    cout << "\tSaved to res.txt - " << ping << "ms\n";
+    int i, j, fir = 0, sec = 0, maxping = 0;
+
+    for (i = 1; i < countip; i++)
+    {
+        for (j = 1; j < countip; j++)
+        {
+            if (maxping < length[i][j])
+            {
+                maxping = length[i][j];
+                fir = i;
+                sec = j;
+            }
+        }
+    }
     cout << "->maxping from 192.168.0." << fir << " to 192.168.0." << sec << " - " << maxping << "ms\n";
-    if (notConnect == 1)
-        cout << "\tThere are no nodes with no connection\n\n";
-
-    
-
 }
 
-int Ping(int start, int finish, Ip* n, int strc)
+void NoConnection(int(*length)[countip])
 {
+    int i, j;
+    bool notConnect = 0;
+    for (i = 1; i < countip; i++)
+    {
+        for (j = 1; j < countip; j++)
+        {
+            if (i != j && length[i][j] == 0)
+            {
+                cout << "\n->node no connected from 192.168.0." << i << " to " << j;
+                notConnect = 1;
+            }
+        }
+    }
+
+    if (notConnect == 0)
+        cout << "\n->There are no nodes with no connection\n\n";
+}
+
+int CalculateDistance(int start, int finish, Ip* n, int strc)
+{
+    ofstream png("res.txt", ios_base::out);
     int length[countip][countip], a = 0, b = 0, i = 0, j = 0, s = 0;
 
     for (j = 0; j < countip; j++)
@@ -121,7 +149,6 @@ int Ping(int start, int finish, Ip* n, int strc)
         {
             length[a][b] = 2;
         }
-
     }
 
     for (int k = 0; k < countip; k++) {
@@ -147,38 +174,18 @@ int Ping(int start, int finish, Ip* n, int strc)
         }
         cout << endl << endl;
     }*/
-
-    int fir = 0, sec = 0, maxping = 0;
-
-    for (i = 1; i < countip; i++)
-    {
-        for (j = 1; j < countip; j++)
-        {
-            if (maxping < length[i][j])
-            {
-                maxping = length[i][j];
-                fir = i;
-                sec = j;
-            }
-        }
-    }
-
-    bool notConnect = 1;
-    for (i = 1; i < countip; i++)
-    {
-        for (j = 1; j < countip; j++)
-        {
-            if (i != j && length[i][j] == 0)
-            {
-                cout << "->node no connection from 192.168.0." << i << " to " << j << endl;
-                notConnect = 0;
-            }
-        }
-    }
-
-    InfToScrean(notConnect, fir, sec, maxping, length[start][finish]);
-        return length[start][finish];
+    png << length[start][finish] << "ms";
+    cout << "\n->ping from 192.168.0.5 to 192.168.0.1 - " << length[start][finish] << "ms\n";
+    cout << "\tSaved to res.txt - " << length[start][finish] << "ms\n";
+    
+    MaxPing(length);
+    NoConnection(length);
+    png.close();
+        //return (*length)[countip];
+    return 0;
 }
+
+
 
 int main()
 {
@@ -205,19 +212,17 @@ int main()
     //cout << strc << endl;
     fin.close();
     
-    TranslateConnection(strc, n);
+    CheckDistance(strc, n);
 
-    ofstream png("res.txt", ios_base::out);
     string command;
     char target[] = "ping 192.168.0.1 -c 1 > res.txt";
-    int ping, host = 5, out = 1;
-
+    int host = 5, out = 1, length[countip][countip];
+    
     cin >> command;
     if (command[3] == target[3])
     {
-        ping = Ping(host, out, n, strc);
-        png << ping << "ms";
+        CalculateDistance(host, out, n, strc);
     }
-    png.close();
+
     return 0;
 }
